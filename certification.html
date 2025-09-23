@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Trucert</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="img/Adobe Express - file.png" alt="logo" />
+      <div>
+        <h1>Trucert</h1>
+        <small>Scan or enter unique ID</small>
+      </div>
+    </div>
+    <div class="status">
+      Account: <span id="account">Connecting…</span>
+    </div>
+  </header>
+  <div class="topbar">
+  <a class="topbar" href="index.html">Home</a>
+  <a class="topbar" href="about.html">About</a>
+  <a class="topbar" href="certification.html">Verify</a>
+  <a class="topbar" href="admin.html">Admin</a>
+  </div>
+
+  <main class="container">
+    <section class="card">
+      <h2>Lookup Certificate</h2>
+      <label>Unique ID <input id="getId" type="number" placeholder="e.g. 1001" /></label>
+      <div class="row">
+        <button id="scanQR" class="btn">Scan QR</button>
+        <button id="getDataBtn" class="btn primary">Get Data</button>
+      </div>
+      <div id="dataResult" class="result"></div>
+    </section>
+  </main>
+
+  
+  <div id="scannerModal" class="popup hidden">
+    <div class="popup-card">
+      <h3>Scan QR Code</h3>
+      <div id="qr-reader" style="width:100%"></div>
+      <div class="popup-actions">
+        <button id="stopScanner" class="btn ghost">Stop</button>
+        <button id="closeScanner" class="btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <script src="verify.js"></script>
+</body>
+</html>

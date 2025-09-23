@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Admin — Add Certificate</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="img/Adobe Express - file.png" alt="logo" />
+      <div>
+        <h1>Admin Panel</h1>
+        <small>Add Certificate (allowed users only)</small>
+      </div>
+    </div>
+    <div class="status">
+      Account: <span id="account">Connecting…</span>
+    </div>
+  </header>
+  <div class="topbar">
+  <a class="topbar" href="index.html">Home</a>
+  <a class="topbar" href="about.html">About</a>
+  <a class="topbar" href="certification.html">verify</a>
+  <a class="topbar" href="admin.html">Admin</a>
+  </div>
+
+  <main class="container">
+    <section class="card">
+      <h2>Add Certificate</h2>
+      <label>Name <input id="field1" type="text" /></label>
+      <label>Course <input id="field2" type="text" /></label>
+      <label>Description <input id="field3" type="text" /></label>
+      <label>IPFS CID or URI <input id="ipfsUri" type="text" /></label>
+      <div class="row">
+        <button id="addDataBtn" class="btn primary">Add Certificate</button>
+        <div id="addDataStatus" class="muted"></div>
+      </div>
+    </section>
+  </main>
+
+  
+  <div id="popup" class="popup hidden">
+    <div class="popup-card">
+      <h3 id="popupTitle">Success</h3>
+      <p>New Entry ID: <strong id="newId">-</strong></p>
+      <div class="popup-actions">
+        <button id="popupClose" class="btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+  <script src="newadmin.js"></script>
+</body>
+</html>
