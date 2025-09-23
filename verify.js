@@ -19,7 +19,6 @@ const abi = [
   {"inputs":[{"internalType":"uint256","name":"_id","type":"uint256"}],"name":"getData","outputs":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"address","name":"addedBy","type":"address"},{"internalType":"uint256","name":"timestamp","type":"uint256"},{"internalType":"string","name":"field1","type":"string"},{"internalType":"string","name":"field2","type":"string"},{"internalType":"string","name":"field3","type":"string"},{"internalType":"string","name":"ipfsUri","type":"string"}],"stateMutability":"view","type":"function"}
 ];
 
-
 let web3, contract, userAccount;
 let html5QrcodeScanner = null;
 const el = id => document.getElementById(id);
@@ -57,6 +56,28 @@ async function getData() {
     }
 
     const ipfsLink = `${data.ipfsUri}`;
+    let fileHtml;
+
+    // check file type
+    if (ipfsLink.toLowerCase().endsWith('.pdf')) {
+      fileHtml = `
+        <embed src="${ipfsLink}" type="application/pdf" 
+               width="100%" height="600px" 
+               style="margin-top:15px;border-radius:2%;">
+        <div class="row buttons">
+          <a id="downloadBtn" href="${ipfsLink}" download="certificate_${data.id}.pdf" class="btn primary">Download PDF</a>
+          <a href="${ipfsLink}" target="_blank" class="btn">Open on IPFS</a>
+        </div>
+      `;
+    } else {
+      fileHtml = `
+        <img src="${ipfsLink}" alt="Certificate Image" style="max-width: 100%; height: auto; margin-top: 15px; border-radius: 2%;">
+        <div class="row buttons">
+          <a id="downloadBtn" href="${ipfsLink}" download="certificate_${data.id}.jpg" class="btn primary">Download Image</a>
+          <a href="${ipfsLink}" target="_blank" class="btn">Open on IPFS</a>
+        </div>
+      `;
+    }
 
     resultEl.innerHTML = `
       <div class="card result-card">
@@ -67,11 +88,7 @@ async function getData() {
         <p><strong>Description:</strong> ${data.field3}</p>
         <p><strong>Added By:</strong> ${data.addedBy}</p>
         <p><strong>Timestamp:</strong> ${new Date(data.timestamp * 1000).toLocaleString()}</p>
-        <img src="${ipfsLink}" alt="Certificate Image" style="max-width: 100%; height: auto; margin-top: 15px; border-radius: 2%;">
-        <div class="row buttons">
-          <a id="downloadBtn" href="${ipfsLink}" download="certificate_${data.id}.jpg" class="btn primary">Download Image</a>
-          <a href="${ipfsLink}" target="_blank" class="btn">Open on IPFS</a>
-        </div>
+        ${fileHtml}
       </div>
     `;
   } catch (err) {
@@ -79,7 +96,6 @@ async function getData() {
     el('dataResult').textContent = 'Error fetching: ' + err.message;
   }
 }
-
 
 function openScanner() {
   el('scannerModal').classList.remove('hidden');
@@ -100,6 +116,7 @@ function openScanner() {
     () => {}
   ).catch(err => alert('Camera error ' + err));
 }
+
 function stopScanner() {
   if (!html5QrcodeScanner) return;
   html5QrcodeScanner.stop().then(() => {
@@ -107,6 +124,7 @@ function stopScanner() {
     html5QrcodeScanner = null;
   });
 }
+
 el('getDataBtn').addEventListener('click', getData);
 el('scanQR').addEventListener('click', openScanner);
 el('stopScanner').addEventListener('click', () => { stopScanner(); el('scannerModal').classList.add('hidden'); });
