@@ -58,12 +58,11 @@ async function getData() {
     const ipfsLink = `${data.ipfsUri}`;
     let fileHtml;
 
-    // check file type
+    // Detect PDF or image
     if (ipfsLink.toLowerCase().endsWith('.pdf')) {
       fileHtml = `
-        <embed src="${ipfsLink}" type="application/pdf" 
-               width="100%" height="600px" 
-               style="margin-top:15px;border-radius:2%;">
+        <iframe src="https://docs.google.com/gview?url=${encodeURIComponent(ipfsLink)}&embedded=true" 
+                style="width:100%; height:600px; margin-top:15px; border:1px solid #ccc; border-radius:2%;"></iframe>
         <div class="row buttons">
           <a id="downloadBtn" href="${ipfsLink}" download="certificate_${data.id}.pdf" class="btn primary">Download PDF</a>
           <a href="${ipfsLink}" target="_blank" class="btn">Open on IPFS</a>
