@@ -58,8 +58,9 @@ async function getData() {
     const ipfsLink = `${data.ipfsUri}`;
     let fileHtml;
 
-    // Detect PDF or image
-    if (ipfsLink.toLowerCase().endsWith('.pdf')) {
+    // Detect file type by extension
+    const lowerLink = ipfsLink.toLowerCase();
+    if (lowerLink.endsWith('.pdf')) {
       fileHtml = `
         <iframe src="https://docs.google.com/gview?url=${encodeURIComponent(ipfsLink)}&embedded=true" 
                 style="width:100%; height:600px; margin-top:15px; border:1px solid #ccc; border-radius:2%;"></iframe>
@@ -68,11 +69,20 @@ async function getData() {
           <a href="${ipfsLink}" target="_blank" class="btn">Open on IPFS</a>
         </div>
       `;
-    } else {
+    } else if (lowerLink.endsWith('.jpg') || lowerLink.endsWith('.jpeg') || lowerLink.endsWith('.png') || lowerLink.endsWith('.webp') || lowerLink.endsWith('.svg')) {
       fileHtml = `
         <img src="${ipfsLink}" alt="Certificate Image" style="max-width: 100%; height: auto; margin-top: 15px; border-radius: 2%;">
         <div class="row buttons">
-          <a id="downloadBtn" href="${ipfsLink}" download="certificate_${data.id}.jpg" class="btn primary">Download Image</a>
+          <a id="downloadBtn" href="${ipfsLink}" download="certificate_${data.id}" class="btn primary">Download Image</a>
+          <a href="${ipfsLink}" target="_blank" class="btn">Open on IPFS</a>
+        </div>
+      `;
+    } else {
+      // Other unknown file types
+      fileHtml = `
+        <p>Cannot preview this file type.</p>
+        <div class="row buttons">
+          <a id="downloadBtn" href="${ipfsLink}" download="certificate_${data.id}" class="btn primary">Download File</a>
           <a href="${ipfsLink}" target="_blank" class="btn">Open on IPFS</a>
         </div>
       `;
