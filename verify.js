@@ -21,40 +21,93 @@ const abi = [
 
 
 let web3, contract, userAccount;
+let html5QrcodeScanner = null;
 const el = id => document.getElementById(id);
 
 window.addEventListener('load', async () => {
-  if (!window.ethereum) { el('account').textContent='MetaMask not found'; return; }
+  if (!window.ethereum) {
+    el('account').textContent = 'MetaMask not found';
+    return;
+  }
   web3 = new Web3(window.ethereum);
   contract = new web3.eth.Contract(abi, contractAddress);
+
   const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
   userAccount = accounts[0];
   el('account').textContent = userAccount;
 });
 
-async function addData() {
-  const f1 = el('field1').value.trim();
-  const f2 = el('field2').value.trim();
-  const f3 = el('field3').value.trim();
-  const ipfs = el('ipfsUri').value.trim();
-  if (!f1||!f2||!f3||!ipfs) { alert('Fill all fields'); return; }
-  el('addDataStatus').textContent='Sending…';
-  try{
-    const receipt = await contract.methods.addData(f1,f2,f3,ipfs).send({from:userAccount});
-    let newId = null;
-    if (receipt.events && receipt.events.DataAdded && receipt.events.DataAdded.returnValues) {
-      newId = receipt.events.DataAdded.returnValues.id;
-    } else {
-      newId = await contract.methods.dataCount().call();
+async function getData() {
+  const id = el('getId').value;
+  const resultEl = el('dataResult');
+
+  if (!id) {
+    resultEl.textContent = 'Please enter an ID.';
+    return;
+  }
+
+  try {
+    resultEl.innerHTML = '<p>Fetching data...</p>';
+
+    const data = await contract.methods.getData(id).call();
+
+    if (data.field1 === '' && data.field2 === '' && data.field3 === '') {
+      resultEl.innerHTML = '<p class="error">Certificate not found.</p>';
+      return;
     }
-    el('newId').textContent=newId;
-    el('popup').classList.remove('hidden');
-    el('addDataStatus').textContent='Added successfully';
-  }catch(err){
+
+    const ipfsLink = `${data.ipfsUri}`;
+
+    resultEl.innerHTML = `
+      <div class="card result-card">
+        <h3>Certificate Details</h3>
+        <p><strong>Certificate ID:</strong> ${data.id.toString()}</p>
+        <p><strong>Name:</strong> ${data.field1}</p>
+        <p><strong>Course:</strong> ${data.field2}</p>
+        <p><strong>Description:</strong> ${data.field3}</p>
+        <p><strong>Added By:</strong> ${data.addedBy}</p>
+        <p><strong>Timestamp:</strong> ${new Date(data.timestamp * 1000).toLocaleString()}</p>
+        <img src="${ipfsLink}" alt="Certificate Image" style="max-width: 100%; height: auto; margin-top: 15px; border-radius: 2%;">
+        <div class="row buttons">
+          <a id="downloadBtn" href="${ipfsLink}" download="certificate_${data.id}.jpg" class="btn primary">Download Image</a>
+          <a href="${ipfsLink}" target="_blank" class="btn">Open on IPFS</a>
+        </div>
+      </div>
+    `;
+  } catch (err) {
     console.error(err);
-    el('addDataStatus').textContent='Error: '+err.message;
-    alert('Error: '+err.message);
+    el('dataResult').textContent = 'Error fetching: ' + err.message;
   }
 }
-el('addDataBtn').addEventListener('click',addData);
-el('popupClose').addEventListener('click',()=>el('popup').classList.add('hidden'));
+
+
+function openScanner() {
+  el('scannerModal').classList.remove('hidden');
+  if (html5QrcodeScanner) return;
+  const qrRegionId = "qr-reader";
+  html5QrcodeScanner = new Html5Qrcode(qrRegionId);
+  const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+  html5QrcodeScanner.start(
+    { facingMode: "environment" },
+    config,
+    decodedText => {
+      const onlyDigits = decodedText.match(/\d+/);
+      if (onlyDigits) el('getId').value = onlyDigits[0];
+      else el('getId').value = decodedText;
+      stopScanner();
+      el('scannerModal').classList.add('hidden');
+    },
+    () => {}
+  ).catch(err => alert('Camera error ' + err));
+}
+function stopScanner() {
+  if (!html5QrcodeScanner) return;
+  html5QrcodeScanner.stop().then(() => {
+    html5QrcodeScanner.clear();
+    html5QrcodeScanner = null;
+  });
+}
+el('getDataBtn').addEventListener('click', getData);
+el('scanQR').addEventListener('click', openScanner);
+el('stopScanner').addEventListener('click', () => { stopScanner(); el('scannerModal').classList.add('hidden'); });
+el('closeScanner').addEventListener('click', () => { stopScanner(); el('scannerModal').classList.add('hidden'); });
