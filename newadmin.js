@@ -24,6 +24,16 @@ let web3, contract, userAccount;
 const el = id => document.getElementById(id);
 
 window.addEventListener('load', async () => {
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                await ethereum.request({ method: 'eth_requestAccounts' });
+                contract = new web3.eth.Contract(abi, contractAddress);
+            } else {
+                alert('MetaMask not detected. Please install it!');
+            }
+        });
+
+window.addEventListener('load', async () => {
   if (!window.ethereum) { el('account').textContent='MetaMask not found'; return; }
   web3 = new Web3(window.ethereum);
   contract = new web3.eth.Contract(abi, contractAddress);
